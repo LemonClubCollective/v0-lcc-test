@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lemon Club Collective</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&display=swap" rel="stylesheet">
+    <style>        
+	/* Body (Use Flexbox to Ensure Footer Stays at Bottom) */
+body {
+    font-family: 'Chelsea Market', cursive;
+    margin: 0;
+    padding: 0;
+    background-color: #87ceeb;
+    overflow-x: hidden;
+    font-size: 16px; /* Base for rem */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure body takes up at least the viewport height */
+}
+
+/* Ensure Main Content Respects Flexbox */
+main {
+    flex: 1 0 auto; /* Grow to fill available space */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Checkbox Alignment for Login and Admin Pages */
+.auth-row label,
+#admin-permissions label {
+    display: flex;
+    align-items: center; /* Vertically center the checkbox and text */
+    gap: 8px; /* Add a small gap between checkbox and text */
+    margin: 5px 0; /* Add vertical spacing between rows */
+    color: #ff4500; /* Match the site's color scheme */
+    font-size: clamp(0.875rem, 2.5vw, 1rem); /* Responsive font size */
+    text-shadow: 1px 1px 2px #228b22; /* Match the site's text shadow */
+}
+
+/* Ensure Checkboxes Look Consistent */
+.auth-row input[type="checkbox"],
+#admin-permissions input[type="checkbox"] {
+    width: 16px; /* Consistent checkbox size */
+    height: 16px;
+    margin: 0; /* Remove default margin */
+    cursor: pointer;
+}
+/* Admin Permissions Layout */
+#admin-permissions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Space between elements */
+    padding: 20px;
+    background-color: rgba(255, 250, 205, 0.9); /* Match the site's background style */
+    border-radius: 10px;
+    max-width: 600px; /* Limit width for better readability */
+    margin: 0 auto; /* Center the section */
+}
+
+/* Style the Username Input */
+#admin-username {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ff4500;
+    background-color: #fff;
+    color: #228b22;
+}
+
+/* Style the Update Permissions Button */
+#admin-permissions button {
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #ffeb3b, #ff4500);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* Form Container Styling for Login/Registration and Admin Pages */
+.auth-row,
+#admin-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Space between form elements */
+    padding: 20px;
+    background-color: rgba(255, 250, 205, 0.9); /* Match site's background */
+    border-radius: 10px;
+    max-width: 600px; /* Limit width for better readability */
+    margin: 0 auto; /* Center the form */
+}
+
+/* Style Form Inputs and Textareas */
+.auth-row input[type="email"],
+.auth-row input[type="text"],
+.auth-row input[type="password"],
+#admin-upload input[type="text"],
+#admin-upload textarea,
+#admin-upload input[type="file"] {
+    width: 100%;
+    max-width: 300px; /* Consistent width for inputs */
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ff4500;
+    background-color: #fff;
+    color: #228b22;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+/* Style Textarea Specifically */
+.auth-row textarea,
+#admin-upload textarea {
+    max-width: 400px; /* Slightly wider for textareas */
+    height: 100px; /* Fixed height for blog content */
+}
+
+/* Style Form Buttons */
+.auth-row button,
+#admin-upload button {
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #ffeb3b, #ff4500); /* Match site's gradient */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+/* Style the Email Verification Reminder */
+.email-verification-reminder {
+    color: #ff4500;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+    text-shadow: 1px 1px 2px #228b22;
+    background-color: rgba(255, 250, 205, 0.9);
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    max-width: 400px;
+}
+
+/* Style the Logout Button */
+.auth-row button[onclick="logout()"] {
+    background: linear-gradient(45deg, #ff4500, #ffeb3b); /* Reverse gradient for contrast */
+}
+
+/* Town Container */
+.town-container {
+    position: relative;
+    min-height: 100vh;
+    text-align: center;
+}
+
+/* Content Container */
+.content-container {
+    position: relative;
+    z-index: 1; /* Ensure content sits above the video background */
+    min-height: 100vh; /* Ensure at least viewport height */
+}
+
+/* Video Background */
+#background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.8;
+}
+
+/* Header */
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem;
+    background-color: rgba(255, 250, 205, 0.7);
+    z-index: 10;
+    transition: transform 0.3s ease;
+    position: sticky; /* Stick to top when scrolling */
+    top: 0;
+}
+
+.header.hidden {
+    transform: translateY(-100%);
+}
+
+/* Site Footer (At Bottom of Content or Viewport) */
+.site-footer {
+    flex-shrink: 0; /* Don't shrink, stay at bottom */
+    background-color: rgba(255, 250, 205, 0.7);
+    padding: 1.25rem 0;
+    text-align: center;
+    color: #ff4500;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+    border-top: 2px solid #ff4500;
+    width: 100%;
+}
+
+.header-left, .header-right {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.header-center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+.auth-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.lcc-logo {
+    width: clamp(10rem, 30vw, 10rem);
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.lcc-logo:hover {
+    transform: scale(1.1);
+}
+
+#menu-container {
+    display: none;
+}
+
+#menu-container.active {
+    display: block;
+}
+
+.buildings {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    background-color: rgba(255, 250, 205, 0.7);
+    padding: 0.5rem 0;
+    z-index: 20;
+}
+
+.building {
+    width: clamp(6rem, 20vw, 8rem); /* Was 10rem, now 80% of that */
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+}
+
+.building:hover {
+    transform: scale(1.1);
+}
+
+.building.active {
+    box-shadow: 0 0 10px #ff4500;
+}
+
+.building img {
+    width: 100%;
+    height: auto;
+}
+
+.building-label {
+    color: #fffacd;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    text-shadow: 1px 1px 2px #228b22;
+    margin-top: 0.3rem;
+}
+
+.building.shop, .building.dexscreener, .building.support {
+    width: clamp(8rem, 25vw, 9.6rem); /* Was 12rem, now 80% of that */
+}
+
+#building-friends {
+    width: clamp(6.8rem, 20vw, 7.6rem);
+}
+
+#building-blog, #building-videos {
+    width: clamp(10rem, 30vw, 10.2rem);
+}
+
+.dropdown {
+    position: relative;
+    z-index: 30;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgba(255, 250, 205, 0.9);
+    min-width: clamp(10rem, 40vw, 12.5rem);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 40;
+    border-radius: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 100%;
+    padding: 0.5rem 0;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content div {
+    color: #ff4500;
+    padding: 0.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    position: relative;
+    z-index: 41;
+}
+
+.dropdown-content div img {
+    width: 1.5rem;
+    height: auto;
+    margin-right: 0.75rem;
+}
+
+.dropdown-content div:hover {
+    background-color: #fffacd;
+}
+
+.content {
+    display: none;
+    position: relative;
+    margin: clamp(5rem, 20vh, 9.375rem) auto 1rem;
+    background-color: rgba(255, 250, 205, 0.95);
+    padding: 1rem;
+    border-radius: 15px;
+    max-width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    z-index: 5;
+    padding-bottom: 3rem;
+}
+
+.content.active {
+    display: block;
+}
+
+.content-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.social-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.social-icon {
+    width: clamp(1.5rem, 5vw, 1.875rem);
+    height: auto;
+    transition: transform 0.3s;
+}
+
+.social-icon:hover {
+    transform: scale(1.2);
+}
+
+#nft-info {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    overflow: auto;
+}
+
+#staking #nft-info {
+    display: flex;
+}
+
+.nft-card {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    margin: 0.5rem;
+    display: inline-block;
+    width: clamp(10rem, 80vw, 18rem);
+    background-color: white;
+    vertical-align: top;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    box-sizing: border-box;
+}
+
+.nft-card:hover {
+    transform: scale(1.05);
+}
+
+.nft-card.staked {
+    border: 2px solid #ff4500;
+}
+
+.nft-card img {
+    max-width: 100%;
+}
+
+.nft-card-buttons select {
+    padding: 0.5rem;
+    margin: 0.125rem;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    border-radius: 8px;
+    background-color: #fffacd;
+    color: #ff4500;
+    border: 1px solid #ff4500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.nft-card-buttons select:hover {
+    background-color: #ffeb3b;
+}
+
+.nft-card-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.nft-card-button {
+    padding: 0.5rem 0.75rem;
+    margin: 0.125rem;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    min-width: 2.75rem;
+}
+
+.nft-card-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.nft-card-button.evolve-btn {
+    background-color: #00bcd4;
+    color: white;
+}
+
+.nft-card-button.evolve-btn:hover {
+    background-color: #0097a7;
+}
+
+.nft-card-button.stake-btn {
+    background-color: #4caf50;
+    color: white;
+}
+
+.nft-card-button.stake-btn:hover {
+    background-color: #388e3c;
+}
+
+.nft-card-button.unstake-btn {
+    background-color: #ffeb3b;
+    color: black;
+}
+
+.nft-card-button.unstake-btn:hover {
+    background-color: #fdd835;
+}
+
+.nft-card-button.evolve-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    margin: 0.3rem;
+    background-color: #32cd32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+    min-width: 2.75rem;
+}
+
+button:hover {
+    background-color: #228b22;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px #32cd32;
+}
+
+button.loading {
+    cursor: wait;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+#mint-loading-gif, #evolve-loading-gif, #stake-loading-gif {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: none;
+}
+
+[data-tooltip] {
+    position: relative;
+    z-index: 50;
+}
+
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background-color: #ff4500;
+    color: white;
+    font-family: 'Chelsea Market', cursive;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    white-space: nowrap;
+    z-index: 51;
+    top: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+button[data-tooltip]:hover::after {
+    bottom: 100%;
+    margin-bottom: 0.3rem;
+}
+
+.building[data-tooltip]:hover::after {
+    top: -2rem;
+    margin-top: 0;
+}
+
+input, textarea {
+    width: 100%;
+    max-width: clamp(15rem, 80vw, 18.75rem);
+    margin: 0.3rem 0;
+    padding: 0.3rem;
+    font-family: 'Chelsea Market', cursive;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+textarea {
+    height: 5rem;
+}
+
+.auth-container {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.9rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.auth-row {
+    margin: 0.6rem 0;
+}
+
+.post-card {
+    border: 1px solid #ccc;
+    padding: 0.6rem;
+    margin: 0.6rem auto;
+    width: 90%;
+    max-width: 37.5rem;
+    background-color: white;
+    text-align: left;
+}
+
+.post-card p {
+    margin: 0.3rem 0;
+    word-wrap: break-word;
+}
+
+.post-card button, .comment button {
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+}
+
+.comment-section {
+    margin-top: 0.6rem;
+    border-top: 1px solid #ccc;
+    padding-top: 0.6rem;
+    display: none;
+}
+
+.comment-section.visible {
+    display: block;
+}
+
+.comment {
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    margin: 0.3rem 0;
+    padding: 0.3rem;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.comment.replied {
+    margin-left: 1.25rem;
+    background-color: #e0e0e0;
+    display: block !important;
+}
+
+.replies {
+    margin-left: 1.25rem;
+    display: block !important;
+}
+
+.comment.replied.nested-debug {
+    border: 1px solid #ff4500;
+    padding: 0.3rem;
+}
+
+.comment-input {
+    width: 100%;
+    max-width: 17.5rem;
+    height: 2.5rem;
+    margin: 0.3rem 0;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1rem;
+    color: #ff4500;
+    z-index: 10;
+}
+.password-toggle:hover {
+    color: #ffeb3b;
+}
+
+#login-status, #wallet-status {
+    color: #fffacd;
+    text-shadow: 1px 1px 2px #228b22;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+/* Email Verification Reminder */
+.email-verification-reminder {
+    color: #ff4500;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+    text-shadow: 1px 1px 2px #228b22;
+    background-color: rgba(255, 250, 205, 0.9);
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+#points-display {
+    color: #fffacd;
+    text-shadow: 1px 1px 2px #228b22;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+table {
+    width: 100%;
+    max-width: 31.25rem;
+    margin: 0.6rem auto;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+th {
+    background-color: #ffeb3b;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+}
+
+li {
+    margin: 0.6rem 0;
+}
+
+.roadmap-img {
+    max-width: 100%;
+    height: auto;
+    margin: 1.25rem auto;
+    display: block;
+    border: 2px solid #ff4500;
+    border-radius: 10px;
+}
+
+.step {
+    margin: 0.9rem 0;
+    font-size: clamp(1.2rem, 4vw, 1.4625rem);
+    color: #ff4500;
+    text-align: center;
+}
+
+#friends, #support, #store, #videos {
+    text-align: center;
+    font-size: clamp(1.5rem, 6vw, 3rem);
+}
+
+#friends h3, #friends p, #support h3, #support p, #store h3, #store p, #videos h3, #videos p {
+    margin: 1.25rem auto;
+    max-width: 50rem;
+}
+
+#friends .content-header h2, #support .content-header h2, #store .content-header h2, #videos .content-header h2 {
+    font-size: clamp(2rem, 8vw, 4.5rem);
+}
+
+#home, #tokenomics, #roadmap, #howtobuy, #quests, #profile, #blog, #admin, #videos {
+    text-align: center;
+}
+
+#home p, #tokenomics p, #roadmap p, #howtobuy p, #quests p, #profile p, #blog p, #admin p, #videos p, 
+#home h3, #tokenomics h3, #roadmap h3, #howtobuy h3, #quests h3, #profile h3, #blog h3, #admin h3, #videos h3,
+#home table, #tokenomics table, #roadmap table, #howtobuy table, #quests table, #profile table, #blog table, #admin table, #videos table {
+    font-size: clamp(1rem, 3vw, 1.3em);
+}
+
+.quest-list {
+    margin: 1.25rem 0;
+    text-align: left;
+    max-width: 37.5rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.quest-item {
+    background-color: white;
+    padding: 0.9rem;
+    margin: 0.6rem 0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.quest-item h4 {
+    margin: 0 0 0.6rem;
+    color: #ff4500;
+}
+
+.quest-progress {
+    width: 100%;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    height: 1.25rem;
+    margin: 0.6rem 0;
+}
+
+.quest-progress-bar {
+    height: 100%;
+    background-color: #32cd32;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.quest-item button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.profile-pic, #profile-pic-display {
+    width: clamp(2.5rem, 10vw, 3.125rem);
+    height: clamp(2.5rem, 10vw, 3.125rem);
+    border-radius: 50%;
+    margin: 0.6rem auto;
+    display: block;
+}
+
+.profile-pic-option {
+    width: clamp(2.5rem, 10vw, 3.125rem);
+    height: clamp(2.5rem, 10vw, 3.125rem);
+    border-radius: 50%;
+    margin: 0.3rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.profile-pic-option:hover {
+    transform: scale(1.1);
+}
+
+.profile-pic-option.selected {
+    border: 2px solid #ff4500;
+}
+
+#profile-upload, #admin-upload {
+    margin-top: 1.25rem;
+}
+
+#profile-upload input[type="file"], #admin-upload input[type="file"] {
+    margin: 0.6rem 0;
+}
+
+
+
+.friend-game, .friend-section {
+    margin: 1.25rem auto;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    max-width: clamp(20rem, 90vw, 56.25rem);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.friend-game h3, .friend-section h3 {
+    color: #ff4500;
+    font-size: clamp(1.5rem, 5vw, 2.25rem);
+    margin-bottom: 0.6rem;
+    text-shadow: 1px 1px 2px #fffacd;
+}
+
+.friend-game p, .friend-section p {
+    font-size: clamp(1rem, 3vw, 1.125rem);
+    color: #228b22;
+    margin: 0.6rem 0;
+}
+
+.friend-game iframe, .friend-section iframe {
+    border-radius: 10px;
+    margin: 1.25rem 0;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    transition: transform 0.3s ease;
+    width: 100%;
+    height: clamp(20rem, 80vw, 46.875rem);
+}
+
+.friend-game iframe:hover, .friend-section iframe:hover {
+    transform: scale(1.02);
+}
+
+.game-container {
+    position: relative;
+}
+
+.game-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0.6rem 0;
+    flex-wrap: wrap;
+}
+
+.start-game-btn {
+    background-color: #32cd32;
+}
+
+.start-game-btn:hover {
+    background-color: #228b22;
+}
+
+.stop-game-btn {
+    background-color: #f44336;
+}
+
+.stop-game-btn:hover {
+    background-color: #d32f2f;
+}
+
+.claim-victory-btn {
+    background-color: #ffeb3b;
+    color: black;
+}
+
+.claim-victory-btn:hover:not(:disabled) {
+    background-color: #fdd835;
+}
+
+.timer-display {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+    color: #ff4500;
+    margin: 0.6rem 0;
+}
+
+.support-form label {
+    display: block;
+    margin: 0.3rem 0;
+}
+
+.support-form input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.3rem;
+}
+
+.video-card {
+    border: 1px solid #ccc;
+    padding: 0.6rem;
+    margin: 0.6rem auto;
+    width: 90%;
+    max-width: 37.5rem;
+    background-color: white;
+    text-align: center;
+}
+
+.video-card video {
+    width: 100%;
+    max-width: 31.25rem;
+    border-radius: 5px;
+}
+
+#profile-icon {
+    width: clamp(6rem, 25vw, 8.125rem);
+    height: clamp(6rem, 25vw, 8.125rem);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    object-fit: cover;
+}
+
+#profile-icon:hover {
+    transform: scale(1.05);
+}
+
+.town-title {
+    color: #ff4500;
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    padding: 0;
+    text-shadow: 2px 2px 4px #fffacd;
+    margin: 0;
+}
+
+.points-breakdown, .points-progress {
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    color: #ff4500;
+    margin-top: 0.3rem;
+    text-align: center;
+}
+
+/* Splash Page */
+#splash-page {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: url('https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/LCCtown.webp') no-repeat center center;
+    background-size: cover;
+    z-index: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.splash-icon {
+    position: absolute;
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.2s ease;
+    width: clamp(8rem, 40vw, 15rem);
+}
+
+#splash-page .splash-icon:hover {
+    transform: scale(1.1);
+}
+
+.splash-icon img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.2s ease;
+}
+
+.splash-icon:hover img {
+    transform: scale(1.1);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-0.9rem); }
+}
+
+.grow-lemons-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, #ffeb3b, #ff4500);
+    color: white;
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    padding: clamp(0.75rem, 3vw, 1.25rem) clamp(1.5rem, 6vw, 2.5rem);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    animation: pulse 2s infinite;
+    z-index: 10;
+}
+
+.grow-lemons-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.what-is-lcc-container {
+    text-align: center;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    background: rgba(255, 250, 205, 0.95);
+    border-radius: 15px;
+    max-width: 90%;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.what-is-lcc-container h1 {
+    color: #ff4500;
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    text-shadow: 2px 2px 4px #fffacd;
+    margin-bottom: 1.25rem;
+}
+
+.what-is-lcc-container p {
+    font-size: clamp(1rem, 3vw, 1.125rem);
+    color: #228b22;
+    margin: 1.25rem 0;
+}
+
+.what-is-lcc-container img {
+    max-width: 100%;
+    height: auto;
+    margin: 1.25rem 0;
+    border: 2px solid #ff4500;
+    border-radius: 10px;
+}
+
+.what-is-lcc-container button {
+    margin: 0.6rem;
+    padding: clamp(0.6rem, 2.5vw, 0.9rem) clamp(1.25rem, 4vw, 1.875rem);
+    font-size: clamp(1rem, 3vw, 1.125rem);
+}
+
+#store-products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.product-card {
+    display: inline-block;
+    margin: 0.6rem;
+    padding: 0.6rem;
+    background-color: rgba(255, 250, 205, 0.95);
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: clamp(8rem, 40vw, 12rem);
+    transition: transform 0.2s; /* Add smooth transition for scaling */
+}
+
+.product-card:hover {
+    transform: scale(1.05); /* Match NFT card pop effect */
+}
+
+.product-card img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+.product-card p {
+    margin: 0.3rem 0;
+    color: #228b22;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.product-card button {
+    padding: 0.3rem 0.6rem;
+    background: linear-gradient(45deg, #ffeb3b, #ff4500);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Chelsea Market', cursive;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+}
+
+.product-gallery {
+    position: relative;
+    width: 100%;
+    max-width: clamp(15rem, 80vw, 25rem);
+    margin: 1.25rem auto;
+    overflow: hidden;
+}
+
+.gallery-images {
+    display: flex;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    gap: 0.6rem;
+}
+
+.gallery-images img {
+    width: 100%;
+    height: auto;
+    max-width: clamp(10rem, 60vw, 18.75rem);
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 69, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 0.6rem;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: background-color 0.3s;
+}
+
+.gallery-arrow.prev {
+    left: 0.6rem;
+}
+
+.gallery-arrow.next {
+    right: 0.6rem;
+}
+
+.gallery-arrow:hover {
+    background-color: rgba(255, 235, 59, 0.9);
+}
+
+.order-history-item {
+    border: 1px solid #ccc;
+    padding: 0.6rem;
+    margin: 0.6rem 0;
+    background-color: white;
+    border-radius: 5px;
+    text-align: left;
+}
+
+.order-history-item p {
+    margin: 0.3rem 0;
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.order-history-item img {
+    max-width: clamp(4rem, 20vw, 6.25rem);
+    border-radius: 5px;
+}
+
+/* NFT Modal Styles */
+#nft-modal.modal {
+    display: none !important;
+    position: fixed !important;
+    z-index: 50000 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: auto !important;
+}
+#nft-modal.modal.active {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.modal-content {
+    background-color: rgba(255, 250, 205, 0.95) !important;
+    margin: 15% auto !important;
+    padding: 20px !important;
+    border-radius: 15px !important;
+    width: 80% !important;
+    max-width: 500px !important;
+    text-align: center !important;
+    font-family: 'Chelsea Market', cursive !important;
+    color: #228b22 !important;
+    box-sizing: border-box !important;
+}
+.close {
+    color: #ff4500 !important;
+    float: right !important;
+    font-size: 28px !important;
+    cursor: pointer !important;
+}
+.close:hover {
+    color: #ffeb3b !important;
+}
+
+#nft-guest-pitch {
+    text-align: center;
+    padding: 1.25rem;
+    background: rgba(255, 250, 205, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#nft-guest-pitch h3 {
+    color: #ff4500;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    text-shadow: 2px 2px 4px #fffacd;
+}
+
+#nft-guest-pitch p {
+    font-size: clamp(0.875rem, 3vw, 1.125rem);
+    color: #228b22;
+    margin: 0.9rem 0;
+}
+
+.nft-evolution-gallery {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0;
+}
+
+.nft-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.nft-column h4 {
+    color: #ff4500;
+    margin-bottom: 0.6rem;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+.nft-column img {
+    width: clamp(6rem, 40vw, 7.5rem);
+    height: auto;
+    margin: 0.3rem 0;
+    border: 2px solid #ff4500;
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+
+.nft-column img:hover {
+    transform: scale(1.1);
+}
+
+.nft-arrow {
+    font-size: clamp(1.5rem, 5vw, 1.875rem);
+    color: #ff4500;
+    align-self: center;
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+    .header {
+        flex-wrap: nowrap;
+    }
+
+    .header-left, .header-right {
+        flex: 0 1 auto;
+    }
+
+    .header-right {
+        margin-right: 3rem;
+        flex-direction: row;
+    }
+
+    .auth-section {
+        flex-wrap: nowrap;
+    }
+
+    .nft-evolution-gallery {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .nft-column {
+        width: 9.375rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-right {
+        margin-right: 0;
+    }
+
+    .auth-section {
+        flex-direction: column;
+    }
+
+    .building {
+        width: clamp(7rem, 25vw, 8rem);
+    }
+}
+    </style>
+</head>
+<body>
+<body>
+   <div id="nft-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('nft-modal').classList.remove('active')">×</span>
+        <h2 id="nft-modal-title"></h2>
+        <img id="nft-modal-image" src="" alt="NFT Image" style="max-width: 200px; border-radius: 10px;">
+        <p><strong>Unique Holders:</strong> <span id="nft-modal-unique-holders"></span></p>
+        <p><strong>Network:</strong> <span id="nft-modal-network"></span></p>
+        <p><strong>Name:</strong> <span id="nft-modal-name"></span></p>
+        <p><strong>Mint Address:</strong> <span id="nft-modal-mint-address"></span></p>
+        <p><strong>Staked:</strong> <span id="nft-modal-staked"></span></p>
+        <p><strong>Stake Start:</strong> <span id="nft-modal-stake-start"></span></p>
+        <p><strong>Stage:</strong> <span id="nft-modal-stage"></span></p>
+        <p><strong>Rarity:</strong> <span id="nft-modal-rarity"></span></p>
+        <p><strong>Background:</strong> <span id="nft-modal-background"></span></p>
+        <p><strong>Base:</strong> <span id="nft-modal-base"></span></p>
+        <button onclick="shareNFTOnX()" style="margin-top: 20px; padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Share on X</button>
+    </div>
+</div>
+<div id="evolve-confirm-modal" class="modal">
+    <div class="modal-content evolve-confirm-content">
+        <img id="evolve-loading-gif" src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/lemonhead.gif" alt="Loading" style="display: none; width: 80vw; max-width: 80vh; margin: 0 auto;">
+        <span class="close" onclick="closeEvolveConfirmModal()">×</span>
+        <h2>Ready to Evolve? 🍋</h2>
+        <p>Ready to squeeze 1000 lemonade points to grow your NFT to the next juicy stage? Let’s evolve!</p>
+        <button onclick="confirmEvolve()" style="margin: 10px; padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Confirm</button>
+        <button onclick="closeEvolveConfirmModal()" style="margin: 10px; padding: 10px 20px; background: #ccc; color: #333; border: none; border-radius: 10px; cursor: pointer;">Cancel</button>
+    </div>
+</div>
+<div id="stake-confirm-modal" class="modal">
+    <div class="modal-content stake-confirm-content">
+        <img id="stake-loading-gif" src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/lemonhead.gif" alt="Loading" style="display: none; width: 80vw; max-width: 80vh; margin: 0 auto;">
+        <span class="close" onclick="closeStakeConfirmModal()">×</span>
+        <h2>Ready to Plant Your Lemon? 🍋</h2>
+        <p id="stake-confirm-message"></p>
+        <button onclick="confirmStake()" style="margin: 10px; padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Confirm Stake</button>
+        <button onclick="closeStakeConfirmModal()" style="margin: 10px; padding: 10px 20px; background: #ccc; color: #333; border: none; border-radius: 10px; cursor: pointer;">Cancel</button>
+    </div>
+</div>
+<div id="mint-confirm-modal" class="modal">
+    <div class="modal-content mint-confirm-content">
+        <img id="mint-loading-gif" src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/lemonhead.gif" alt="Loading" style="display: none;  width: 80vw; max-width: 80vh; margin: 0 auto;">
+        <span class="close" onclick="closeMintConfirmModal()">×</span>
+        <h2>Mint a Fresh Lemon! 🍋</h2>
+        <p>Get ready to drop 0.1 SOL to sprout a brand-new Lemon NFT! This little seed’s yours to grow—stake it, evolve it, show it off. Note: Total fees are ~0.115 SOL for minting (0.1 SOL + ~0.002 SOL network fees + ~0.003 SOL account creation) and ~0.015 SOL for metadata setup (one-time fee).Ready to plant some crypto zest? Hit confirm and let’s squeeze it!</p>
+        <button onclick="confirmMint()" style="margin: 10px; padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Confirm Mint (0.13 SOL Total)</button>
+        <button onclick="closeMintConfirmModal()" style="margin: 10px; padding: 10px 20px; background: #ccc; color: #333; border: none; border-radius: 10px; cursor: pointer;">Cancel</button>
+    </div>
+</div>
+<div id="order-history-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeOrderHistoryModal()">×</span>
+        <h2>Your Order History 🍋</h2>
+        <div id="order-history-content"></div>
+    </div>
+</div>
+<div id="product-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeProductModal()">×</span>
+        <h2 id="product-modal-title"></h2>
+        <div class="product-gallery">
+            <button class="gallery-arrow prev" onclick="scrollGallery('prev')">&#10094;</button>
+            <div id="product-gallery-images" class="gallery-images"></div>
+            <button class="gallery-arrow next" onclick="scrollGallery('next')">&#10095;</button>
+        </div>
+        <p id="product-modal-description"></p>
+        <div id="product-modal-options"></div>
+        <p id="product-modal-price"></p>
+        <button onclick="startCheckout()" style="margin-top: 20px; padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Proceed to Checkout</button>
+    </div>
+</div>
+<div id="checkout-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCheckoutModal()">×</span>
+        <h2>Checkout</h2>
+        <form id="checkout-form">
+            <label>First Name: <input type="text" id="checkout-first-name" required></label><br>
+            <label>Last Name: <input type="text" id="checkout-last-name" required></label><br>
+            <label>Email: <input type="email" id="checkout-email" required></label><br>
+            <label>Street Address: <input type="text" id="checkout-street" required></label><br>
+            <label>City: <input type="text" id="checkout-city" required></label><br>
+            <label>State: <input type="text" id="checkout-state" required></label><br>
+            <label>ZIP Code: <input type="text" id="checkout-zip" required></label><br>
+            <label>Country: <input type="text" id="checkout-country" required></label><br>
+	    <label>Shipping Method: 
+                <select id="shipping-method" onchange="updateCheckoutTotal()">
+                    <option value="">Select Shipping</option>
+                </select>
+            </label><br>
+            <label>Payment Method:
+                <select id="payment-method" onchange="updatePaymentFields()">
+                    <option value="coinbase">Crypto (Coinbase)</option>
+                    <option value="stripe">Credit Card (Stripe)</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="sol">Pay with SOL</option>
+                </select>
+            </label><br>
+            <div id="payment-fields"></div>
+            <p>Total: <span id="checkout-total">$0.00</span></p>
+            <button type="button" onclick="completePurchase()" style="padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Complete Purchase</button>
+        </form>
+    </div>
+</div>
+
+
+<style>
+    #checkout-modal.modal {
+        display: none;
+        position: fixed;
+        z-index: 50000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        overflow: auto;
+    }
+    #checkout-modal.modal.active {
+        display: block;
+        opacity: 1;
+    }
+    #checkout-modal .modal-content {
+        background-color: rgba(255, 250, 205, 0.95);
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        color: #228b22;
+    }
+    #checkout-form label {
+        display: block;
+        margin: 10px 0;
+    }
+    #checkout-form input {
+        width: 80%;
+        padding: 5px;
+    }
+</style>
+<style>
+    #product-modal.modal {
+        display: none;
+        position: fixed;
+        z-index: 50000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        overflow: auto;
+    }
+    #product-modal.modal.active {
+        display: block;
+        opacity: 1;
+    }
+    #product-modal .modal-content {
+        background-color: rgba(255, 250, 205, 0.95);
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 600px;
+        text-align: center;
+        color: #228b22;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+</style>
+<style>
+    .modal {
+        display: none !important;
+        position: fixed !important;
+        z-index: 50000 !important;
+        left: 0 !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        visibility: visible !important;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease-in-out !important;
+        overflow: auto !important;
+    }
+    .modal.active {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    .modal-content {
+        background-color: rgba(255, 250, 205, 0.95) !important;
+        margin: 15% auto !important;
+        padding: 20px !important;
+        border-radius: 15px !important;
+        width: 80% !important;
+        max-width: 500px !important;
+        text-align: center !important;
+        font-family: 'Chelsea Market', cursive !important;
+        color: #228b22 !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    }
+    .evolve-confirm-content {
+        animation: bounce 0.5s ease-in-out !important;
+    }
+    .modal-content p {
+        margin: 10px 0 !important;
+    }
+    .modal-content p strong {
+        color: #ff4500 !important;
+    }
+    .close {
+        color: #ff4500 !important;
+        float: right !important;
+        font-size: 28px !important;
+        cursor: pointer !important;
+    }
+    .close:hover {
+        color: #ffeb3b !important;
+    }
+    @keyframes bounce {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+   <!-- Splash Page -->
+<div id="splash-page" class="active">
+    <div class="splash-icon" style="top: 10%; left: 10%; width: 240px;">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/townhall.png" alt="Town Hall">
+    </div>
+    <div class="splash-icon" style="top: 10%; right: 50%;">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/blogicon.png" alt="Blog">
+    </div>
+<div class="splash-icon" style="top: 20%; right: 20%;">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/forum.png" alt="Blog">
+    </div>
+    <div class="splash-icon" style="bottom: 10%; left: 10%;">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/arcade.png" alt="Arcade">
+    </div>
+    <div class="splash-icon" style="bottom: 10%; right: 10%;">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/videos.png" alt="Videos">
+    </div>
+<div class="splash-icon" style="bottom: 10%; right: 50%;">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/treehouse.png" alt="Videos">
+    </div>
+
+    <div class="splash-icon" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/lemonclub.png" alt="Lemon Club">
+    </div>
+    <button class="grow-lemons-btn" id="grow-lemons-btn" onclick="showContent('home')">Grow Lemons</button>
+</div>
+
+
+  <!-- Town Container with Video Background -->
+<div class="town-container" id="main-site" style="display: none;">
+    <!-- Video Background -->
+    <video id="background-video" autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.8;">
+        <source src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/townbg.mp4" type="video/mp4">
+        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/LCCtown.webp" style="width: 100%; height: auto;" alt="Fallback Town Background">
+    </video>
+
+    <!-- Main Content -->
+    <div class="content-container">
+        <div class="header">
+            <div class="header-left">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/lcclogo.png" alt="LCC Logo" class="lcc-logo" onclick="showContent('home')">
+            </div>
+            <div class="header-center">
+                <h1 class="town-title">Lemon Club Collective</h1>
+            </div>
+            <div class="header-right">
+                <div class="auth-section">
+                    <img id="profile-icon" alt="Profile Picture" data-tooltip="Your Profile" onclick="showContent('profile')">
+                    <div id="login-status">Not logged in</div>
+                    <button id="auth-btn" data-tooltip="Login or Logout" onclick="toggleAuth()">Log</button>
+                    <div>
+                        <div id="wallet-status">Wallet not connected</div>
+                        <div id="points-display">Lemonade Points: 0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="menu-container" class="active">
+            <div class="buildings">
+                <div class="building" id="building-home" onclick="showContent('home')" data-tooltip="Visit Home">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/townhall.png" alt="Town Hall">
+                    <div class="building-label">Home</div>
+                </div>
+                <div class="building" id="building-staking" onclick="showContent('staking')" data-tooltip="Stake NFTs">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/greenhouse.png" alt="Garden">
+                    <div class="building-label">Garden</div>
+                </div>
+                <div class="building friends" id="building-forum" onclick="showContent('forum')" data-tooltip="Join Forum">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/treehouse.png" alt="Forum">
+                    <div class="building-label">Forum</div>
+                </div>
+                <div class="building shop" id="building-store" onclick="showContent('store')" data-tooltip="Buy Merch">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/gallery.png" alt="Store">
+                    <div class="building-label">Store</div>
+                </div>
+                <div class="building" id="building-blog" onclick="showContent('blog')" data-tooltip="Read Blog/Newsletter">     
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/blogicon.png" alt="Blog">
+                    <div class="building-label">Blog</div>
+                </div>
+                <div class="building shop" id="building-friends" onclick="showContent('friends')" data-tooltip="Play Arcade">     
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/arcade.png" alt="Arcade">
+                    <div class="building-label">Arcade</div>
+                </div>
+                <div class="building" id="building-quests" onclick="showContent('quests')" data-tooltip="Lemon Grove Quests">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/forum.png" alt="Quests">
+                    <div class="building-label">Quests</div>
+                </div>
+                <div class="building" id="building-videos" onclick="showContent('videos')" data-tooltip="Watch Videos">     
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/videos.png" alt="Videos">
+                    <div class="building-label">Videos</div>
+                </div>
+                <div class="building" id="building-admin" onclick="showContent('admin')" data-tooltip="Admin Portal">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/helpdesk.png" alt="Admin">
+                    <div class="building-label">Admin</div>
+                </div>
+                <div class="building dropdown" id="building-more" data-tooltip="More Options">
+                    <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/more.png" alt="More">
+                    <div class="building-label">More</div>
+                    <div class="dropdown-content">
+                        <div onclick="showContent('tokenomics')">
+                            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/tokenomics.png" alt="Tokenomics">
+                            Tokenomics
+                        </div>
+                        <div onclick="showContent('roadmap')">
+                            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/roadmap.png" alt="Road Map">
+                            Road Map
+                        </div>
+                        <div onclick="showContent('howtobuy')">
+                            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/howto.png" alt="How to Buy">
+                            How to Buy
+                        </div>
+                        <div onclick="showContent('support')">
+                            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/helpdesk.png" alt="Support">
+                            Support
+                        </div>
+                        <div onclick="window.open('https://dexscreener.com/solana/edhssiovavy7jkqiwur1psczpgz2khoqbmmlytppxzpp', '_blank')">
+                            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/dex.png" alt="DexScreener">
+                            DexScreener
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Home Content Section -->
+<div id="home" class="content active">
+    <div class="content-header">
+        <h2>Welcome To Lemon Club!</h2>
+        <div class="social-links">
+            <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+            </a>
+            <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+            </a>
+            <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+            </a>
+            <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+            </a>
+            <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+            </a>
+        </div>
+    </div>
+    <p>CA: EK1mT7iPC9eP8wfS5QQABdNEkLVYz3dc2Tuok11naKnB</p>
+    <p><strong>Mission:</strong> Give meaningful utility to rugged token projects with Lemon Club Collective Take Over (LCCTO). Where rugs come back to life.</p>
+    <p>Rug Pulls are rampant across crypto, with many investors losing their money to quick pump and dump scams from sites like pump.fun and Moonshot. We give these tokens utility within our network of offerings of no-rug projects doing REAL LIFE good for the world.</p>
+    
+    <!-- Registration Form -->
+    <div class="auth-row">
+        <input type="email" id="regEmail" placeholder="Email">
+        <input type="text" id="regUsername" placeholder="Username">
+        <div style="position: relative;">
+            <input type="password" id="regPassword" placeholder="Password">
+            <span class="password-toggle" onclick="togglePassword('regPassword')" data-tooltip="Show/Hide Password">👁️</span>
+        </div>
+        <label><input type="checkbox" id="regTos" required> I agree to the <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a></label>
+        <label><input type="checkbox" id="regRisk" required> I understand crypto investments involve risk</label>
+        <label><input type="checkbox" id="regEmailConsent"> I consent to email updates</label>
+        <button id="join-btn" onclick="register()" data-tooltip="Join the Club">Sign Up</button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="auth-row">
+        <p class="email-verification-reminder">Please verify your email before logging in. Check your inbox (and spam) for the verification link!</p>
+        <form onsubmit="login(event)">
+            <input type="text" id="loginUsername" placeholder="Username">
+            <div style="position: relative;">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <span class="password-toggle" onclick="togglePassword('loginPassword')" data-tooltip="Show/Hide Password">👁️</span>
+            </div>
+            <button type="submit" data-tooltip="Login to Account">Login</button>
+        </form>
+        <button onclick="logout()" data-tooltip="Logout of Account">Logout</button>
+    </div>
+</div>
+        <div id="staking" class="content">
+            <div class="content-header">
+                <h2>Garden - Staking</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <button onclick="mintNFT(this)" data-tooltip="Mint a New NFT">Mint New NFT</button>
+            <button id="connect-wallet-btn-staking" onclick="toggleWalletConnection()" data-tooltip="Connect/Disconnect Solana Wallet">Connect Solana Wallet</button>
+            <div id="nft-info"><p>Please login to manage your Lemon NFTs!</p></div>
+            <div id="nft-guest-pitch" style="display: none;">
+                <h3>Grow Your Own Lemon NFT! 🍋</h3>
+                <p>Welcome to the Lemon Club Garden, where your NFT journey begins! For just <strong>0.1 SOL</strong>, mint a unique Lemon Seed NFT. Stake it, play games, and complete quests to earn Lemonade Points—spend 10 points to evolve it from Seed to Sprout, Sapling, and finally a majestic Tree. Sign up, grab your wallet, and start growing today!</p>
+                <div class="nft-evolution-gallery">
+                    <div class="nft-column seeds">
+                        <h4>Seeds</h4>
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(1).png" alt="Seed 1">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(2).png" alt="Seed 2">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(4).png" alt="Seed 3">
+                    </div>
+                    <div class="nft-arrow">➡️</div>
+                    <div class="nft-column sprouts">
+                        <h4>Sprouts</h4>
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(8).png" alt="Sprout 1">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(9).png" alt="Sprout 2">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(11).png" alt="Sprout 3">
+                    </div>
+                    <div class="nft-arrow">➡️</div>
+                    <div class="nft-column saplings">
+                        <h4>Saplings</h4>
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(12).png" alt="Sapling 1">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(13).png" alt="Sapling 2">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(3).png" alt="Sapling 3">
+                    </div>
+                    <div class="nft-arrow">➡️</div>
+                    <div class="nft-column trees">
+                        <h4>Trees</h4>
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(5).png" alt="Tree 1">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(6).png" alt="Tree 2">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/examplenfts/examplenft%20(7).png" alt="Tree 3">
+                    </div>
+                </div>
+                <button onclick="showContent('home')" style="margin: 20px auto; padding: 15px 30px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 15px; cursor: pointer; display: block;">Mint Your NFT Now!</button>
+            </div>
+        </div>
+        <div id="tokenomics" class="content">
+            <div class="content-header">
+                <h2>Tokenomics</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <p>CA: EK1mT7iPC9eP8wfS5QQABdNEkLVYz3dc2Tuok11naKnB</p>
+            <h3>$LCC Token</h3>
+            <table>
+                <tr><th>Total Supply</th><td>1,000,000,000,000,000</td></tr>
+                <tr><th>Distribution</th><td></td></tr>
+                <tr><td>Liquidity Pool</td><td>60%</td></tr>
+                <tr><td>Community Wallet</td><td>10%</td></tr>
+                <tr><td>Team</td><td>10%</td></tr>
+                <tr><td>Staking</td><td>10%</td></tr>
+                <tr><td>Bounties</td><td>10%</td></tr>
+            </table>
+            <h3>$LCDAO Token</h3>
+            <table>
+                <tr><th>Total Supply</th><td>100,000,000,000</td></tr>
+            </table>
+        </div>
+        <div id="roadmap" class="content">
+            <div class="content-header">
+                <h2>Road Map</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <h3>Lemon Club Collective Roadmap</h3>
+            <div class="step">Step 1: Launch Website and NFT Minting (Q1 2025)</div>
+            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/roadmap.png" alt="Roadmap Step 1" class="roadmap-img" onerror="console.error('Roadmap image failed:', this.src)">
+            <div class="step">Step 2: Community Expansion and Staking (Q2 2025)</div>
+            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/roadmap1.png" alt="Roadmap Step 2" class="roadmap-img" onerror="console.error('Roadmap image failed:', this.src)">
+            <div class="step">Step 3: Merch Store and Partnerships (Q3 2025)</div>
+            <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/roadmap2.png" alt="Roadmap Step 3" class="roadmap-img" onerror="console.error('Roadmap image failed:', this.src)">
+            <div class="step">Step 4: Token Utility Expansion (Q4 2025)</div>
+        </div>
+        <div id="howtobuy" class="content">
+            <div class="content-header">
+                <h2>How to Buy $LCC</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <h3>Step 1: Get a Solana Wallet</h3>
+            <p>Download <a href="https://phantom.app/" target="_blank">Phantom Wallet</a> or another Solana-compatible wallet. Set it up with a secure seed phrase—keep it safe and don’t share it!</p>
+            <h3>Step 2: Buy SOL</h3>
+            <p>Get some SOL (Solana’s native token) from an exchange like Binance, Coinbase, or Kraken. Transfer it to your Phantom wallet address.</p>
+            <h3>Step 3: Swap SOL for $LCC</h3>
+            <p>Head to <a href="https://jup.ag/swap/SOL-LCC" target="_blank">Jupiter Aggregator</a>. Connect your Phantom wallet, select SOL as the input, and paste our contract address (EK1mT7iPC9eP8wfS5QQABdNEkLVYz3dc2Tuok11naKnB) for $LCC as the output.</p>
+            <p>Enter how much SOL you want to swap for $LCC (start small if you’re new!). Double-check everything, then hit “Swap Now” to finish the trade.</p>
+            <h3>Boom! You Did It!</h3>
+            <p>You’ve just set up your first crypto wallet and bought $LCC! Welcome to the Lemon Club Collective crew—your coins are now in your Phantom wallet.</p>
+            <p><strong>Quick Tip:</strong> New to this? Try a tiny test swap first (like $5 worth)!</p>
+        </div>
+        <div id="forum" class="content">
+            <div class="content-header">
+                <h2>Forum - Community</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <textarea id="postContent" maxlength="280" placeholder="Share your thoughts (max 280 chars)"></textarea>
+            <button onclick="submitPost()" data-tooltip="Submit Post">Post</button>
+            <div id="post-list"></div>
+        </div>
+        <div id="friends" class="content">
+            <div class="content-header">
+                <h2>Lemon Club Friends</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <div class="friend-game">
+                <h3>Big Dill On Ice!</h3>
+                <p>Big Dill was on his way to paradise when his airplane crashed! Now he's stuck on ice in the Arctic. Help him escape in this chilly adventure!</p>
+                <div class="game-container">
+                    <div class="game-buttons">
+                        <button class="start-game-btn" onclick="startGame('big-dill')" data-tooltip="Start Game">Start</button>
+                        <button class="stop-game-btn" onclick="stopGame('big-dill')" data-tooltip="Stop Game" style="display:none;">Stop</button>
+                        <button class="claim-victory-btn" id="claim-big-dill" onclick="claimVictory('big-dill')" data-tooltip="Claim Victory (5 min playtime)" disabled>Claim Victory</button>
+                    </div>
+                    <div class="timer-display" id="timer-big-dill">Time: 0:00</div>
+                    <iframe id="game-big-dill" data-src="https://play.rosebud.ai/p/69253929-c221-41d4-8387-b0d9f0d42267" width="100%" height="750px" frameborder="0" allowfullscreen="true" allow="autoplay; fullscreen *; xr-spatial-tracking; gamepad" style="display:none;"></iframe>
+                </div>
+                <p><strong>Contract Address:</strong> 2FzY24gMb55Uop8T7V1dZkFTN6z5rpMgyeanZVBmoon</p>
+            </div>
+            <hr style="border: 1px solid #ff4500; margin: 30px 0;">
+            <div class="friend-game">
+                <h3>Lemon Club Welcomes Owl Capone!!!</h3>
+                <p>Owl Capone: Mob boss by day, crypto bro by night! He looks after his community and manages his finances, never sleeping—staying up OWL night long to build his crypto empire. To him, meme coins are a real HOOT!</p>
+                <div class="game-container">
+                    <div class="game-buttons">
+                        <button class="start-game-btn" onclick="startGame('owl-capone')" data-tooltip="Start Game">Start</button>
+                        <button class="stop-game-btn" onclick="stopGame('owl-capone')" data-tooltip="Stop Game" style="display:none;">Stop</button>
+                        <button class="claim-victory-btn" id="claim-owl-capone" onclick="claimVictory('owl-capone')" data-tooltip="Claim Victory (5 min playtime)" disabled>Claim Victory</button>
+                    </div>
+                    <div class="timer-display" id="timer-owl-capone">Time: 0:00</div>
+                    <iframe id="game-owl-capone" data-src="https://play.rosebud.ai/p/75a94936-a105-48f5-a59e-93e4ed89bcb9" width="100%" height="750" style="border:none; display:none;"></iframe>
+                </div>
+                <p><strong>Contract Address:</strong> 76BK4cu5xN8hp7cjNyHLt3gnwZUEsaEpV6h3ahyumoon</p>
+            </div>
+            <hr style="border: 1px solid #ff4500; margin: 30px 0;">
+            <div class="friend-game">
+                <h3>Lenny the Lemon Fights Rug Pullers</h3>
+                <p>Join Lenny the Lemon as he battles rug pullers to save the day—play for 5 minutes to claim victory!</p>
+                <div class="game-container">
+                    <div class="game-buttons">
+                        <button class="start-game-btn" onclick="startGame('lenny-lemon')" data-tooltip="Start Game">Start</button>
+                        <button class="stop-game-btn" onclick="stopGame('lenny-lemon')" data-tooltip="Stop Game" style="display:none;">Stop</button>
+                        <button class="claim-victory-btn" id="claim-lenny-lemon" onclick="claimVictory('lenny-lemon')" data-tooltip="Claim Victory (5 min playtime)" disabled>Claim Victory</button>
+                    </div>
+                    <div class="timer-display" id="timer-lenny-lemon">Time: 0:00</div>
+                    <iframe id="game-lenny-lemon" data-src="https://play.rosebud.ai/p/c0f8cb53-6c63-49c6-bf1a-2e0e806553e4" width="100%" height="750" style="border: 0; border-radius: 10px; overflow: hidden; display:none;"></iframe>
+                </div>
+            </div>
+            <hr style="border: 1px solid #ff4500; margin: 30px 0;">
+            <div class="friend-section">
+                <h3>Lemon Club Welcomes Pudgy Orcas! The $PORCA!!!</h3>
+                <p>Hunting Pudgy Penguins & spreading vibes across the meta.</p>
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/porca.png" alt="Porca" style="max-width: 200px;">
+                <p><strong>Contract Address:</strong> QLEYLx27uF5C2V6k8F3Q6vqppkC6XKUBPMiirLcpump</p>
+            </div>
+            <hr style="border: 1px solid #ff4500; margin: 30px 0;">
+            <div class="friend-section">
+                <h3>Lemon Club Welcomes Bothered Rabbit!!!</h3>
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/BRAB.png" alt="BRAB" style="max-width: 200px;">
+                <p><strong>Contract Address:</strong> CVNr3XYNTp7Pwp3rKUVHrKMgn7oVbokcUbXzNopNpump</p>
+            </div>
+            <hr style="border: 1px solid #ff4500; margin: 30px 0;">
+            <div class="friend-section">
+                <h3>Lemon Club Collective</h3>
+                <p>CA: EK1mT7iPC9eP8wfS5QQABdNEkLVYz3dc2Tuok11naKnB</p>
+                <p>Check us out on <strong>DEX SCREENER</strong> and follow us on <strong>X</strong>!</p>
+            </div>
+        </div>
+        <div id="quests" class="content">
+            <div class="content-header">
+                <h2>Lemon Grove Quests</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <p>Crush these epic quests to stack up your Lemonade Points!</p>
+            <div class="quest-list" id="daily-quests"><h3>Daily Quests</h3></div>
+            <div class="quest-list" id="weekly-quests"><h3>Weekly Quests</h3></div>
+            <div class="quest-list" id="limited-quests"><h3>Monthly Quests</h3></div>
+            <div class="quest-list" style="background-color: rgba(255, 250, 205, 0.9); padding: 15px; border-radius: 10px;">
+                <h3>🍋 Squeeze the Day: Earn Lemonade Points Like a Boss! 🍋</h3>
+                <p>Get ready to juice up your Lemonade Points with these zesty activities! Here’s how to rack ‘em up and evolve your NFTs to legendary status:</p>
+                <ul class="list-disc pl-5 mt-2">
+                    <li><strong>Mint a Fresh NFT:</strong> Drop a new Lemon Seed in the Garden and snag <strong>25 Minting Points</strong>. First mint of the day? Boom—<strong>+50 Bonus Points</strong>!</li>
+                    <li><strong>Stake Your Claim:</strong> Lock an NFT in the Garden for <strong>50 Staking Points</strong>. Unstake later to cash in hourly staking rewards (think 0.5 points/hour, more with multiple NFTs)!</li>
+                    <li><strong>Game On in Friends:</strong> Smash arcade games for <strong>2 Arcade Points</strong> every 5 minutes, plus <strong>25 bonus</strong> when you claim victory after 5 minutes!</li>
+                    <li><strong>Quest Blitz:</strong> Crush daily, weekly, and monthly quests for big <strong>Quest Points</strong>—rewards vary (e.g., 20 for social visits, 40 for section explorer, up to 100+ for tough ones)!</li>
+                    <li><strong>Daily Login Streak:</strong> Log in every day for <strong>5 Bonus Points</strong>, jumping to <strong>15</strong> after 5 days straight—keep the streak alive!</li>
+                    <li><strong>Newsletter Hype:</strong> Subscribe in Blog for a sweet <strong>25 Bonus Points</strong>—stay in the loop and get paid!</li>
+                </ul>
+                <p class="mt-2">Score <strong>1,000 Lemonade Points</strong> to evolve your NFT to the next stage—Seed to Sprout to Sapling to Tree! Check your stash in Profile and spend ‘em wisely!</p>
+            </div>
+        </div>
+        <div id="profile" class="content">
+            <div class="content-header">
+                <h2>Your Profile</h2>
+                <button onclick="showOrderHistory()" style="margin: 10px; padding: 10px 20px; background: linear-gradient(45deg, #ffeb3b, #ff4500); color: white; border: none; border-radius: 10px; cursor: pointer;">Order History</button>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <div id="profile-info"><p>Please login to view your profile!</p></div>
+            <div id="profile-upload">
+                <input type="file" id="profile-pic-upload" accept="image/*">
+                <button onclick="uploadProfilePic()" data-tooltip="Upload Profile Picture">Upload</button>
+            </div>
+            <button onclick="subscribe()" data-tooltip="Subscribe to Premium ($10/month)">Subscribe to Premium ($10/month)</button>
+            <div id="profile-pic-options" style="margin-top: 20px;"></div>
+            <div id="profile-pic-history" style="margin-top: 20px;"><h3>Your Profile Pic History</h3><div id="profile-pic-history-list"></div></div>
+        </div>
+        <div id="blog" class="content">
+            <div class="content-header">
+                <h2>Lemon Club Blog & Newsletter</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <div id="blog-posts"></div>
+            <div class="auth-container">
+                <h3>Subscribe to Newsletter</h3>
+                <input type="email" id="newsletter-email" placeholder="Your Email">
+                <button onclick="subscribeNewsletter()" data-tooltip="Subscribe">Subscribe</button>
+            </div>
+        </div>
+        <div id="support" class="content">
+            <div class="content-header">
+                <h2>Support Desk</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <h3>Submit a Support Ticket</h3>
+            <form class="support-form" onsubmit="submitTicket(event)">
+                <label>Name: <input type="text" id="ticketName" required></label>
+                <label>Email: <input type="email" id="ticketEmail" required></label>
+                <label>Message: <textarea id="ticketMessage" required></textarea></label>
+                <button type="submit" data-tooltip="Submit Ticket">Submit</button>
+            </form>
+        </div>
+        <div id="store" class="content">
+            <div class="content-header">
+                <h2>Merch Store</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <div id="store-products"></div>
+        </div>
+        <div id="videos" class="content">
+            <div class="content-header">
+                <h2>Lemon Club Videos</h2>
+                <div class="social-links">
+                    <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+                    </a>
+                    <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+                    </a>
+                    <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+                    </a>
+                    <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                        <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+                    </a>
+                </div>
+            </div>
+            <div id="video-list"></div>
+        </div>
+       <!-- Admin Content Section -->
+<div id="admin" class="content">
+    <div class="content-header">
+        <h2>Admin Portal</h2>
+        <div class="social-links">
+            <a href="https://discord.gg/uvpCGdxwU4" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/discordlogo.png" alt="Discord" class="social-icon">
+            </a>
+            <a href="https://t.me/c/2271932098/35" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/telegramlogo.png" alt="Telegram" class="social-icon">
+            </a>
+            <a href="https://www.youtube.com/@LemonClubCollective" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/youtube.png" alt="YouTube" class="social-icon">
+            </a>
+            <a href="https://www.facebook.com/groups/1170961554633456" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/facebooklogo.png" alt="Facebook" class="social-icon">
+            </a>
+            <a href="https://x.com/LemonClubCoin" target="_blank" onclick="trackSocialVisit()">
+                <img src="https://drahmlrfgetmm.cloudfront.net/assetsNFTmain/siteicons/xlogo.png" alt="X" class="social-icon">
+            </a>
+        </div>
+    </div>
+    <div id="admin-content"><p>Please login as an admin to access this section!</p></div>
+    <div id="admin-permissions" style="display: none;">
+        <h3>Manage User Permissions</h3>
+        <input type="text" id="admin-username" placeholder="Enter Username">
+        <label><input type="checkbox" id="admin-isAdmin"> Set as Admin</label>
+        <label><input type="checkbox" id="admin-canPostBlogs"> Can Post Blogs</label>
+        <label><input type="checkbox" id="admin-canPostVideos"> Can Post Videos</label>
+        <label><input type="checkbox" id="admin-canDeletePosts"> Can Delete Posts</label>
+        <label><input type="checkbox" id="admin-canDeleteBlogs"> Can Delete Blogs</label>
+        <label><input type="checkbox" id="admin-canDeleteVideos"> Can Delete Videos</label>
+        <button onclick="updateUserPermissions()">Update Permissions</button>
+    </div>
+    <div id="admin-upload" style="display: none;">
+        <h3>Post a Blog</h3>
+        <input type="text" id="blog-title" placeholder="Blog Title">
+        <textarea id="blog-content" placeholder="Blog Content"></textarea>
+        <button onclick="postBlog()" data-tooltip="Post Blog">Post Blog</button>
+        
+        <h3>Upload a Video</h3>
+        <input type="text" id="video-title" placeholder="Video Title">
+        <input type="text" id="video-desc" placeholder="Video Description">
+        <input type="file" id="video-upload" accept="video/*">
+        <button onclick="uploadVideo()" data-tooltip="Upload Video">Upload Video</button>
+    </div>
+</div>
+
+<!-- Site Footer (Pinned to Bottom) -->
+<footer class="site-footer">
+    <p>© 2025 Lemon Club Collective | All Rights Reserved | <a href="https://www.lemonclubcollective.com" style="color: #ff4500;">Visit Our Site</a> | <a href="/terms.html" style="color: #ff4500;">Terms</a> | <a href="/privacy.html" style="color: #ff4500;">Privacy</a></p>
+</footer>
+
+<!-- Scripts -->
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/solana-web3.js" onload="window.solanaWeb3 = window.solanaWeb3 || {}; window.solanaWeb3Loaded = true; console.log('Solana Web3 loaded locally, version:', solanaWeb3.version || 'unknown')" onerror="console.error('Failed to load Solana Web3 locally:', event)"></script>
+<script src="/node_modules/big-integer/big-integer.js" onload="console.log('bigInt loaded locally'); window.BigInteger = bigInt;" onerror="console.error('bigInt load failed');"></script>
+<script>
+  window.STRIPE_PUBLISHABLE_KEY = "{{STRIPE_PUBLISHABLE_KEY}}";
+</script>
+<script src="/scripts.js" defer></script>
+
+<!-- End of Document -->
+</body>
+</html>
